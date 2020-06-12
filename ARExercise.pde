@@ -40,7 +40,6 @@ ArrayList<Marker> markers;
 MarkerTracker markerTracker;
 
 PImage img;
-
 float x = 100;
 float y = 200;
 float speed = 0;
@@ -110,6 +109,7 @@ void setup() {
   textFont(createFont("Arial", 48));
   playerImg = loadImage("data/bird.png");
   titleImg = loadImage("data/title.jpg");
+  titleImg.resize(dcap.width, dcap.height);
   startGameFile = new SoundFile(this, "data/background.mp3");
   dieGameFile = new SoundFile(this, "data/lose.mp3");
   isDeadSoundPlayed = false; //don't play dead game sound
@@ -129,6 +129,7 @@ void setup() {
 void draw() {
   if (title == 1) {
     titleUpdate(mouseX, mouseY);
+
     background(titleImg);
     fill(255);
     textSize(48);
