@@ -7,7 +7,19 @@ SoundFile startGameFile;
 SoundFile dieGameFile;
 boolean isDeadSoundPlayed;
 boolean isGameSoundPlayed;
+//===============title display variable =======//
+PImage titleImg;
+boolean circleOver = false;
+int circleSize = 120;   // Diameter of circle
+int circleX, circleY;
+String test = "Start";
+color circleColor,circleHighlight;
+
+PVector location;  // Location of shape
+PVector velocity;  // Velocity of shape
+PVector gravity;   // Gravity acts at the shape's acceleration
 //===============================================//
+
 
 final boolean MARKER_TRACKER_DEBUG = false;
 
@@ -37,6 +49,7 @@ float dy = 300;
 int dead = 0;
 int score = 0;
 int title = 1;
+
 
 PImage playerImg;
 
@@ -96,21 +109,56 @@ void setup() {
 
   textFont(createFont("Arial", 48));
   playerImg = loadImage("data/bird.png");
+  titleImg = loadImage("data/title.jpg");
   startGameFile = new SoundFile(this, "data/background.mp3");
   dieGameFile = new SoundFile(this, "data/lose.mp3");
   isDeadSoundPlayed = false; //don't play dead game sound
   isGameSoundPlayed = true; //play the start game sound
+  circleColor = color(255);
+  circleHighlight = color(0,255,255);
+  circleX = width/6+105;
+  circleY = height*3/4-80;
+  ellipseMode(CENTER);
+  location = new PVector(100,100);
+  velocity = new PVector(1.5,2.1);
+  gravity = new PVector(0,0.2);
   //===================Play the start game sound===========//
   startGameFile.loop();
 }
 
 void draw() {
   if (title == 1) {
-    background(0);
+    titleUpdate(mouseX, mouseY);
+    background(titleImg);
     fill(255);
     textSize(48);
     textAlign(CENTER);
-    text("Marker Bird", width/2, height/2);
+    text("Marker ver.", width/4, height/2+20);
+    if (circleOver) {
+      fill(circleHighlight);
+    } else {
+      fill(circleColor);
+    }
+    ellipse(circleX, circleY, circleSize, circleSize);
+    fill(0);
+    text("Start", width/5+60, height*3/4-65);
+    
+    // Drawing the bouncing bird
+    location.add(velocity); // Add velocity to the location.
+    velocity.add(gravity); // Add gravity to velocity
+    // Bounce off edges
+    if ((location.x > width) || (location.x < 0)) {
+      velocity.x = velocity.x * -1;
+    }
+    if (location.y > height) {
+      // We're reducing velocity ever so slightly 
+      // when it hits the bottom of the window
+      velocity.y = velocity.y * -0.95; 
+      location.y = height;
+    }
+    // Display bird at location vector
+    image(playerImg, location.x, location.y, 100, 100);
+    
     return;
   }
   ArrayList<Marker> markers = new ArrayList<Marker>();
@@ -161,8 +209,14 @@ void draw() {
   // if dead
   if (dead == 1) {
     fill(255, 0, 0);
+    textSize(72);
     textAlign(CENTER);
-    text("GAME OVER", width/2, height/2);
+    text("GAME OVER", width/2, height/2-50);
+    fill(255);
+    textSize(48);
+    text("Your score: " + score, width/2, height/2);
+    textSize(30);
+    text("press Space for another game", width/2, height/2+40);
     if(isGameSoundPlayed){  
       startGameFile.stop();
       isGameSoundPlayed = false;
@@ -194,6 +248,7 @@ void drawThePipe(float px,float py,float pipeWidth,float pipeHeight){
     line(i,py,i,py+pipeHeight);
   }
 }
+
 //modification in dokan
 //taking 2 variables:
 //pipeWidth: width of the pipe
@@ -246,6 +301,21 @@ void player(int gy) {
   image(playerImg, x, y, 100, 100);
 }
 
+void titleUpdate(int x, int y) {
+  if ( overStart(circleX, circleY, circleSize) ) {
+    circleOver = true;
+  }  else {
+    circleOver = false;
+  }
+}
+
+void mousePressed() {
+  if (circleOver) {
+    //test = "great";
+    title = 0;
+  }
+}
+
 int isHit(float px, float py, float pw, float ph, float ex, float ey, float ew, float eh) {
   if (px < ex + ew && px + pw > ex) {
     if (py < ey + eh && py + ph > ey) {
@@ -253,6 +323,16 @@ int isHit(float px, float py, float pw, float ph, float ex, float ey, float ew, 
     }
   }
   return 0;
+}
+
+boolean overStart(int x, int y, int diameter) {
+  float disX = x - mouseX;
+  float disY = y - mouseY;
+  if (sqrt(sq(disX) + sq(disY)) < diameter/2 ) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void init() {
