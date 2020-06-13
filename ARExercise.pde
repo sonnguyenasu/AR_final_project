@@ -16,7 +16,7 @@ final boolean USE_SAMPLE_IMAGE = false;
 // We've found that some Windows build-in cameras (e.g. Microsoft Surface)
 // cannot work with processing.video.Capture.*.
 // Instead we use DirectShow Library to launch these cameras.
-final boolean USE_DIRECTSHOW = true;
+final boolean USE_DIRECTSHOW = false;
 
 final double kMarkerSize = 0.03; // [m]
 
@@ -55,13 +55,17 @@ void selectCamera() {
   } else {
     println("Available cameras:");
     printArray(cameras);
-
-    // The camera can be initialized directly using an element
-    // from the array returned by list():
-    //cap = new Capture(this, cameras[5]);
-
-    // Or, the settings can be defined based on the text in the list
-    cap = new Capture(this, 1280, 720, "USB2.0 HD UVC WebCam", 30);
+    if (!System.getProperty("os.name").startsWith("Windows")) {
+      // For MacOS Linux
+      // The camera can be initialized directly using an element
+      // from the array returned by list():
+      cap = new Capture(this, cameras[0]);
+      println("camera inited!");
+    } else {
+      // For Windows
+      // Or, the settings can be defined based on the text in the list
+      cap = new Capture(this, 1280, 720, "USB2.0 HD UVC WebCam", 30);
+    }
   }
 }
 
@@ -75,11 +79,18 @@ void settings() {
       dcap = new DCapture();
       size(dcap.width, dcap.height);
       opencv = new OpenCV(this, dcap.width, dcap.height);
-    } else {
+    } else if (System.getProperty("os.name").startsWith("Windows")) {
       selectCamera();
       size(cap.width, cap.height);
       opencv = new OpenCV(this, cap.width, cap.height);
     }
+  }
+}
+
+void setupCamera() {
+  if (!USE_SAMPLE_IMAGE) {
+    selectCamera();
+    opencv = new OpenCV(this, cap.width, cap.height);
   }
 }
 
@@ -88,6 +99,9 @@ void setup() {
   markerTracker = new MarkerTracker(kMarkerSize);
 
   if (!USE_DIRECTSHOW) {
+    if (!System.getProperty("os.name").startsWith("Windows")) {
+      setupCamera();
+    }
     cap.start();
   }
 
