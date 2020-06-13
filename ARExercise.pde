@@ -2,6 +2,9 @@ import gab.opencv.*;
 import processing.video.*;
 import processing.sound.*;
 
+//===============draw function counter========//
+int drawCounter = 0;
+
 //===============Sound display variable =======//
 SoundFile startGameFile;
 SoundFile dieGameFile;
@@ -40,7 +43,6 @@ ArrayList<Marker> markers;
 MarkerTracker markerTracker;
 
 PImage img;
-
 float x = 100;
 float y = 200;
 float speed = 0;
@@ -52,6 +54,7 @@ int title = 1;
 
 
 PImage playerImg;
+PImage playerImg2;
 
 // Added in Lecture 5 (20/05/27)
 KeyState keyState;
@@ -108,8 +111,11 @@ void setup() {
   keyState = new KeyState();
 
   textFont(createFont("Arial", 48));
-  playerImg = loadImage("data/bird.png");
+  playerImg = loadImage("data/peng.png");
+  playerImg2 = loadImage("data/peng2.png");
+  //playerImg.resize(120,120);
   titleImg = loadImage("data/title.jpg");
+  titleImg.resize(dcap.width, dcap.height);
   startGameFile = new SoundFile(this, "data/background.mp3");
   dieGameFile = new SoundFile(this, "data/lose.mp3");
   isDeadSoundPlayed = false; //don't play dead game sound
@@ -129,6 +135,7 @@ void setup() {
 void draw() {
   if (title == 1) {
     titleUpdate(mouseX, mouseY);
+
     background(titleImg);
     fill(255);
     textSize(48);
@@ -157,8 +164,9 @@ void draw() {
       location.y = height;
     }
     // Display bird at location vector
-    image(playerImg, location.x, location.y, 100, 100);
-    
+    drawCounter = (drawCounter+1)%20;
+    if(drawCounter >= 10)  image(playerImg, location.x, location.y, 100, 100);
+    else  image(playerImg2, location.x,location.y, 100, 100);
     return;
   }
   ArrayList<Marker> markers = new ArrayList<Marker>();
@@ -298,7 +306,10 @@ void player(int gy) {
     dead = 1;
   }
   
-  image(playerImg, x, y, 100, 100);
+  // Display bird at location vector
+    drawCounter = (drawCounter+1)%20;
+    if(drawCounter >=10)  image(playerImg, x, y, 100, 100);
+    else  image(playerImg2, x, y, 100, 100);
 }
 
 void titleUpdate(int x, int y) {
