@@ -59,8 +59,8 @@ class MarkerTracker {
 	Mat image_gray_filtered;
 
     MarkerTracker(double _kMarkerSizeLength) {
-        thresh = 120;
-        bw_thresh = 130;
+        thresh = 140;
+        bw_thresh = 140;
         kMarkerSizeLength = _kMarkerSizeLength;
         init();
     }
