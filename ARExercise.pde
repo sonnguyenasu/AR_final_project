@@ -32,7 +32,7 @@ final boolean USE_SAMPLE_IMAGE = false;
 // We've found that some Windows build-in cameras (e.g. Microsoft Surface)
 // cannot work with processing.video.Capture.*.
 // Instead we use DirectShow Library to launch these cameras.
-final boolean USE_DIRECTSHOW = false;
+final boolean USE_DIRECTSHOW = true;
 
 final double kMarkerSize = 0.03; // [m]
 
