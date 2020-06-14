@@ -29,7 +29,7 @@ class Dokan {
         return dyIndiv;
     }
 
-    void draw(int score, int width, int height) {
+    void draw(int width, int height) {
         // draw pipe
         dxIndiv = dxIndiv - 5;
         //float pipeWidth = 50;
