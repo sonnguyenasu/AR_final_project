@@ -23,6 +23,7 @@ PVector velocity;  // Velocity of shape
 PVector gravity;   // Gravity acts at the shape's acceleration
 //===============================================//
 
+ArrayList<Dokan> dokanArray;
 
 final boolean MARKER_TRACKER_DEBUG = false;
 
@@ -71,13 +72,17 @@ void selectCamera() {
   } else {
     println("Available cameras:");
     printArray(cameras);
-
-    // The camera can be initialized directly using an element
-    // from the array returned by list():
-    //cap = new Capture(this, cameras[5]);
-
-    // Or, the settings can be defined based on the text in the list
-    cap = new Capture(this, 1280, 720, "USB2.0 HD UVC WebCam", 30);
+    if (!System.getProperty("os.name").startsWith("Windows")) {
+      // For MacOS Linux
+      // The camera can be initialized directly using an element
+      // from the array returned by list():
+      cap = new Capture(this, 1280, 720, cameras[1]);
+      println("camera inited!");
+    } else {
+      // For Windows
+      // Or, the settings can be defined based on the text in the list
+      cap = new Capture(this, 1280, 720, "USB2.0 HD UVC WebCam", 30);
+    }
   }
 }
 
@@ -91,11 +96,20 @@ void settings() {
       dcap = new DCapture();
       size(dcap.width, dcap.height);
       opencv = new OpenCV(this, dcap.width, dcap.height);
-    } else {
+    } else if (System.getProperty("os.name").startsWith("Windows")) {
       selectCamera();
       size(cap.width, cap.height);
       opencv = new OpenCV(this, cap.width, cap.height);
+    } else {
+      size(1280, 720);
     }
+  }
+}
+
+void setupCamera() {
+  if (!USE_SAMPLE_IMAGE) {
+    selectCamera();
+    opencv = new OpenCV(this, cap.width, cap.height);
   }
 }
 
@@ -104,6 +118,9 @@ void setup() {
   markerTracker = new MarkerTracker(kMarkerSize);
 
   if (!USE_DIRECTSHOW) {
+    if (!System.getProperty("os.name").startsWith("Windows")) {
+      setupCamera();
+    }
     cap.start();
   }
 
@@ -115,7 +132,13 @@ void setup() {
   playerImg2 = loadImage("data/peng2.png");
   //playerImg.resize(120,120);
   titleImg = loadImage("data/title.jpg");
-  titleImg.resize(dcap.width, dcap.height);
+  if (System.getProperty("os.name").startsWith("Windows")) {
+    // For windows
+    titleImg.resize(dcap.width, dcap.height);
+  } else {
+    // For mac
+    titleImg.resize(cap.width, cap.height);
+  }
   startGameFile = new SoundFile(this, "data/background.mp3");
   dieGameFile = new SoundFile(this, "data/lose.mp3");
   isDeadSoundPlayed = false; //don't play dead game sound
@@ -128,6 +151,17 @@ void setup() {
   location = new PVector(100,100);
   velocity = new PVector(1.5,2.1);
   gravity = new PVector(0,0.2);
+  //===================Initialize dokan====================//
+  float pipeWidth = 80;
+  float pipeGap = 120;
+  float pipeInterval = 270;
+  dokanArray = new ArrayList<Dokan>();
+  for (int i = 0; i < 5; i++) {
+    dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
+    dokanArray.get(i).setX(dx + i*pipeInterval);
+    if (i == 0) dokanArray.get(i).setY(dy);
+    else dokanArray.get(i).setY(random(height/2, width/2));
+  } 
   //===================Play the start game sound===========//
   startGameFile.loop();
 }
@@ -207,10 +241,11 @@ void draw() {
       isGameSoundPlayed=true;
     }
     // 土管のプログラム
-    float pipeWidth = 80;
+    // float pipeWidth = 80;
     //float pipeGap = (pipeGap>0)?pipeGap:random(75, 150);
-    float pipeGap = 120;
-    dokan(pipeWidth, pipeGap);
+    // float pipeGap = 120;
+    // dokan(pipeWidth, pipeGap);
+    drawDokan(dokanArray, score);
     // プレイヤーのプログラム
     player(gy/4);
   }
@@ -247,13 +282,20 @@ void captureEvent(Capture c) {
       c.read();
 }
 
+
 //draw the pipe with gradient color
-void drawThePipe(float px,float py,float pipeWidth,float pipeHeight){
-  for(float i = px; i < px+pipeWidth; i++){
-    //idx variable to set up the color
-    int idx = (int)((i - px)*256/pipeWidth);
-    stroke(0,255-idx,255-idx>>1);
-    line(i,py,i,py+pipeHeight);
+// void drawThePipe(float px,float py,float pipeWidth,float pipeHeight){
+//   for(float i = px; i < px+pipeWidth; i++){
+//     //idx variable to set up the color
+//     int idx = (int)((i - px)*256/pipeWidth);
+//     stroke(0,255-idx,255-idx>>1);
+//     line(i,py,i,py+pipeHeight);
+//   }
+// }
+
+void drawDokan(ArrayList<Dokan> queue, int score) {
+  for (Dokan dokan : queue) {
+    dokan.draw(score, width, height);
   }
 }
 
@@ -262,26 +304,26 @@ void drawThePipe(float px,float py,float pipeWidth,float pipeHeight){
 //pipeWidth: width of the pipe
 //pipeGap: the gap between the upper and the lower pipe
 // these variable can be made random later
-void dokan(float pipeWidth, float pipeGap) {
-  // draw pipe
-  dx = dx - 5;
-  //float pipeWidth = 50;
-  //float pipeGap = random(75,150);
-  if (dx + pipeWidth < 0) {
-    dx = width;
-    dy = random(height/2, width/2);
-    score = score + 1;
-    pipeGap = -1;
-  }
-  //lower pipe
-  //fill(0, 255, 0);
-  //rect(dx, dy, 50, height - dy);
-  drawThePipe(dx,dy, pipeWidth, height - dy);
-  // upper pipe
-  //fill(0,255,0);
-  //rect(dx, 0, 50, dy - 150);
-  drawThePipe(dx,0,pipeWidth, dy-pipeGap);
-}
+// void dokan(float pipeWidth, float pipeGap) {
+//   // draw pipe
+//   dx = dx - 5;
+//   //float pipeWidth = 50;
+//   //float pipeGap = random(75,150);
+//   if (dx + pipeWidth < 0) {
+//     dx = width;
+//     dy = random(height/2, width/2);
+//     score = score + 1;
+//     pipeGap = -1;
+//   }
+//   //lower pipe
+//   //fill(0, 255, 0);
+//   //rect(dx, dy, 50, height - dy);
+//   drawThePipe(dx,dy, pipeWidth, height - dy);
+//   // upper pipe
+//   //fill(0,255,0);
+//   //rect(dx, 0, 50, dy - 150);
+//   drawThePipe(dx,0,pipeWidth, dy-pipeGap);
+// }
 
 void player(int gy) {
   if(gy != 0){
@@ -289,16 +331,20 @@ void player(int gy) {
   }
 
   // collision with lower pipe
-  int hit = isHit(x, y, 50, 50, dx, dy, 50, height - dy);
-  if (hit == 1) {
-    fill(255, 0, 0);
-    dead = 1;
+  for (Dokan dokan : dokanArray) {
+    int hit = isHit(x, y, 50, 50, dokan.getX(), dokan.getY(), 50, height - dokan.getY());
+    if (hit == 1) {
+      fill(255, 0, 0);
+      dead = 1;
+    }
   }
   // collision with upper pipe
-  int hit02 = isHit(x, y, 50, 50, dx, 0, 50, dy - 150);
-  if (hit02 == 1) {
-    fill(255, 0, 0); 
-    dead = 1;
+  for (Dokan dokan : dokanArray) {
+    int hit02 = isHit(x, y, 50, 50, dokan.getX(), 0, 50, dokan.getY() - 150);
+    if (hit02 == 1) {
+      fill(255, 0, 0); 
+      dead = 1;
+    }
   }
   
   // out of screen
