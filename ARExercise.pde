@@ -22,7 +22,9 @@ PVector location;  // Location of shape
 PVector velocity;  // Velocity of shape
 PVector gravity;   // Gravity acts at the shape's acceleration
 //===============================================//
-
+float pipeWidth;
+float pipeGap;
+float pipeInterval;
 ArrayList<Dokan> dokanArray;
 
 final boolean MARKER_TRACKER_DEBUG = false;
@@ -152,9 +154,9 @@ void setup() {
   velocity = new PVector(1.5,2.1);
   gravity = new PVector(0,0.2);
   //===================Initialize dokan====================//
-  float pipeWidth = 80;
-  float pipeGap = 120;
-  float pipeInterval = 270;
+  pipeWidth = 80;
+  pipeGap = 120;
+  pipeInterval = 270;
   dokanArray = new ArrayList<Dokan>();
   for (int i = 0; i < 5; i++) {
     dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
@@ -295,7 +297,7 @@ void captureEvent(Capture c) {
 
 void drawDokan(ArrayList<Dokan> queue, int score) {
   for (Dokan dokan : queue) {
-    dokan.draw(score, width, height);
+    dokan.draw(width, height);
   }
 }
 
@@ -392,12 +394,23 @@ boolean overStart(int x, int y, int diameter) {
   }
 }
 
+// this function is to init all variables everytime game starts
 void init() {
   x = 100;
   y = 200;
   speed = 0;
   dx = 400;
   dy = 300;
+  pipeWidth = 80;
+  pipeGap = 120;
+  pipeInterval = 270;
+  dokanArray = new ArrayList<Dokan>();
+  for (int i = 0; i < 5; i++) {
+    dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
+    dokanArray.get(i).setX(dx + i*pipeInterval);
+    if (i == 0) dokanArray.get(i).setY(dy);
+    else dokanArray.get(i).setY(random(height/2, width/2));
+  } 
   dead = 0;
   score = 0;
   title = 1;
