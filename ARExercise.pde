@@ -345,17 +345,15 @@ void player(int gy) {
     y = gy;
   }
 
-  // collision with lower pipe
   for (Dokan dokan : dokanArray) {
+    // collision with lower pipe
     int hit = isHit(x, y, 50, 50, dokan.getX(), dokan.getY(), pipeWidth/2 , height - dokan.getY());
     if (hit == 1) {
       fill(255, 0, 0);
       dead = 1;
       break;
     }
-  }
-  // collision with upper pipe
-  for (Dokan dokan : dokanArray) {
+    // collision with upper pipe
     int hit02 = isHit(x, y, 50, 50, dokan.getX(), 0, pipeWidth/2, dokan.getY() - 150);
     if (hit02 == 1) {
       fill(255, 0, 0); 
