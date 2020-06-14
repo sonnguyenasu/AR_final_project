@@ -53,6 +53,9 @@ float dx = 400;
 float dy = 300;
 int dead = 0;
 int score = 0;
+int best_score = 0;
+boolean new_record = false;
+String best_name = "N/A";
 int title = 1;
 
 
@@ -176,6 +179,9 @@ void draw() {
     ellipse(circleX, circleY, circleSize, circleSize);
     fill(0);
     text("Start", width/5+60, height*3/4-65);
+    textSize(30);
+    text("Best score: " + best_score , width/5+60, height*3/4+20);
+    text("Player name:" + best_name , width/5+60, height*3/4+60);
     
     // Drawing the bouncing bird
     location.add(velocity); // Add velocity to the location.
@@ -247,12 +253,23 @@ void draw() {
     fill(255, 0, 0);
     textSize(72);
     textAlign(CENTER);
-    text("GAME OVER", width/2, height/2-50);
+    text("GAME OVER", width/2, height/2-60);
     fill(255);
     textSize(48);
     text("Your score: " + score, width/2, height/2);
     textSize(30);
-    text("press Space for another game", width/2, height/2+40);
+    text("press Space for another game!", width/2, height/2+180);
+    if(score > best_score){
+      best_score = score;
+      new_record = true;
+      best_name = "";
+    }
+    if(new_record){
+      best_score = score;
+      textSize(48);
+      fill(255, 255, 0);
+      text("NEW RECORD!!!!  Type your name:" + best_name, width/2, height/2+80);
+    }
     if(isGameSoundPlayed){  
       startGameFile.stop();
       isGameSoundPlayed = false;
@@ -427,4 +444,5 @@ void init() {
   dead = 0;
   score = 0;
   title = 1;
+  new_record = false;
 }

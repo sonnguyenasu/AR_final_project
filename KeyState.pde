@@ -56,6 +56,17 @@ void keyPressed() {
       init();
     }
   }
+  if (dead == 1 && new_record){
+     if (key==BACKSPACE) {
+        if (best_name.length()>0) {
+          best_name = best_name.substring(0, best_name.length()-1);
+        }
+     }
+     else if(key== ENTER){}
+     else{
+       best_name += key;
+     }
+  }
   keyState.putState(keyCode, true);
 }
 
