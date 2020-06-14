@@ -157,10 +157,11 @@ void setup() {
   pipeWidth = dcap.width/16;
   pipeGap = 120;
   pipeInterval = (dcap.width+pipeWidth)/5-pipeWidth;
+
   dokanArray = new ArrayList<Dokan>();
   for (int i = 0; i < 5; i++) {
     dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
-    dokanArray.get(i).setX(dx + i*pipeInterval);
+    dokanArray.get(i).setX(dx + i*(pipeWidth + pipeInterval));
     if (i == 0) dokanArray.get(i).setY(dy);
     else dokanArray.get(i).setY(random(height/2, width/2));
   } 
@@ -338,6 +339,7 @@ void player(int gy) {
     if (hit == 1) {
       fill(255, 0, 0);
       dead = 1;
+      break;
     }
   }
   // collision with upper pipe
@@ -346,6 +348,7 @@ void player(int gy) {
     if (hit02 == 1) {
       fill(255, 0, 0); 
       dead = 1;
+      break;
     }
   }
   
@@ -407,7 +410,7 @@ void init() {
   dokanArray = new ArrayList<Dokan>();
   for (int i = 0; i < 5; i++) {
     dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
-    dokanArray.get(i).setX(dx + i*pipeInterval);
+    dokanArray.get(i).setX(dx + i*(pipeWidth + pipeInterval));
     if (i == 0) dokanArray.get(i).setY(dy);
     else dokanArray.get(i).setY(random(height/2, width/2));
   } 
