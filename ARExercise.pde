@@ -154,9 +154,9 @@ void setup() {
   velocity = new PVector(1.5,2.1);
   gravity = new PVector(0,0.2);
   //===================Initialize dokan====================//
-  pipeWidth = 80;
+  pipeWidth = dcap.width/16;
   pipeGap = 120;
-  pipeInterval = 270;
+  pipeInterval = (dcap.width+pipeWidth)/5-pipeWidth;
   dokanArray = new ArrayList<Dokan>();
   for (int i = 0; i < 5; i++) {
     dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
@@ -334,7 +334,7 @@ void player(int gy) {
 
   // collision with lower pipe
   for (Dokan dokan : dokanArray) {
-    int hit = isHit(x, y, 50, 50, dokan.getX(), dokan.getY(), 50, height - dokan.getY());
+    int hit = isHit(x, y, 50, 50, dokan.getX(), dokan.getY(), pipeWidth/2 , height - dokan.getY());
     if (hit == 1) {
       fill(255, 0, 0);
       dead = 1;
@@ -342,7 +342,7 @@ void player(int gy) {
   }
   // collision with upper pipe
   for (Dokan dokan : dokanArray) {
-    int hit02 = isHit(x, y, 50, 50, dokan.getX(), 0, 50, dokan.getY() - 150);
+    int hit02 = isHit(x, y, 50, 50, dokan.getX(), 0, pipeWidth/2, dokan.getY() - 150);
     if (hit02 == 1) {
       fill(255, 0, 0); 
       dead = 1;
@@ -401,9 +401,9 @@ void init() {
   speed = 0;
   dx = 400;
   dy = 300;
-  pipeWidth = 80;
+  pipeWidth = (int)width/16;
   pipeGap = 120;
-  pipeInterval = 270;
+  pipeInterval = (width+pipeWidth)/5-pipeWidth;
   dokanArray = new ArrayList<Dokan>();
   for (int i = 0; i < 5; i++) {
     dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));

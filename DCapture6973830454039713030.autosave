@@ -11,6 +11,13 @@ class DCapture implements java.beans.PropertyChangeListener {
     capture = new DSCapture(DSFiltergraph.DD7, dsi[0][0], false, DSFilterInfo.doNotRender(), this);
     width = capture.getDisplaySize().width;
     height = capture.getDisplaySize().height;
+    
+
+  }
+  public void setSize(int w, int h){
+    width = w;
+    height = h;
+    capture.setSize(w,h);
   }
   public PImage updateImage() {
     PImage img = createImage(width, height, RGB);
