@@ -26,7 +26,7 @@ float pipeWidth;
 float pipeGap;
 float pipeInterval;
 ArrayList<Dokan> dokanArray;
-ManiFile file = new ManiFile("test.txt");
+ManiFile file = new ManiFile("score.txt");
 final boolean MARKER_TRACKER_DEBUG = false;
 
 final boolean USE_SAMPLE_IMAGE = false;
@@ -129,7 +129,8 @@ void setup() {
     cap.start();
   }
 
-  String data = file.readFile();
+  String data = null;
+  while(data==null) data = file.readFile();
   String[] scs = (data.split(","));
   best_score = parseInt(scs[scs.length-1]);
   best_name = String.join(" ",Arrays.copyOf(scs, scs.length-1));
@@ -138,8 +139,8 @@ void setup() {
   keyState = new KeyState();
   circleSize = width*120/1280;
   textFont(createFont("Arial", 48));
-  playerImg = loadImage("data/pig.png");
-  playerImg2 = loadImage("data/pig2.png");
+  playerImg = loadImage("data/peng.png");
+  playerImg2 = loadImage("data/peng2.png");
   //playerImg.resize(100*width/1280,100*width/1280);
   //playerImg2.resize(100*width/1280,100*width/1280);
 

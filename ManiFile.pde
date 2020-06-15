@@ -27,15 +27,17 @@ class ManiFile
     // variable declaration 
         int ch; 
         String data = "";
+        boolean ok = false;
         FileReader fr = null;
         // read from FileReader till the end of file 
         try{
           fr = new FileReader(fileName);
+          ok = true;
             //System.out.print((char)ch); 
         }catch(FileNotFoundException e){
           writeFile(best_name+','+best_score);
           e.printStackTrace();
-      }
+      }if(ok){
         try{
         while ((ch=fr.read())!=-1){ 
             data += (char)ch;
@@ -43,8 +45,10 @@ class ManiFile
           }
           fr.close();
         }catch(IOException e){}
+      
         println("Read successfully: ", data);
         return data;
+      }else return null;
         // close the file 
         //fr.close(); 
     } 
