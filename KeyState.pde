@@ -48,7 +48,7 @@ class KeyState {
 }
 
 void keyPressed() {
-  if (key == ' ') {
+  if (key == ENTER) {
     if (title == 1) {
       title = 0;
     }
@@ -62,7 +62,6 @@ void keyPressed() {
           best_name = best_name.substring(0, best_name.length()-1);
         }
      }
-     else if(key== ENTER){}
      else{
        best_name += key;
      }

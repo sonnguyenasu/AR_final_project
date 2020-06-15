@@ -1,7 +1,7 @@
 import gab.opencv.*;
 import processing.video.*;
 import processing.sound.*;
-
+import java.util.Arrays;
 //===============draw function counter========//
 int drawCounter = 0;
 
@@ -26,7 +26,7 @@ float pipeWidth;
 float pipeGap;
 float pipeInterval;
 ArrayList<Dokan> dokanArray;
-
+ManiFile file = new ManiFile("score.txt");
 final boolean MARKER_TRACKER_DEBUG = false;
 
 final boolean USE_SAMPLE_IMAGE = false;
@@ -70,7 +70,7 @@ void selectCamera() {
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default");
-    cap = new Capture(this, 640, 480);
+    cap = new Capture(this, 1280, 720);
   } else if (cameras.length == 0) {
     println("There are no cameras available for capture.");
     exit();
@@ -121,7 +121,7 @@ void setupCamera() {
 void setup() {
   smooth();
   markerTracker = new MarkerTracker(kMarkerSize);
-
+  //println(System.getProperty("user.dir"));
   if (!USE_DIRECTSHOW) {
     if (!System.getProperty("os.name").startsWith("Windows")) {
       setupCamera();
@@ -129,13 +129,21 @@ void setup() {
     cap.start();
   }
 
+  String data = null;
+  while(data==null) data = file.readFile();
+  String[] scs = (data.split(","));
+  best_score = parseInt(scs[scs.length-1]);
+  best_name = String.join(" ",Arrays.copyOf(scs, scs.length-1));
+  
  // Added in Lecture 5 (20/05/27), to manage keyevents
   keyState = new KeyState();
-
+  circleSize = width*120/1280;
   textFont(createFont("Arial", 48));
   playerImg = loadImage("data/peng.png");
   playerImg2 = loadImage("data/peng2.png");
-  //playerImg.resize(120,120);
+  //playerImg.resize(100*width/1280,100*width/1280);
+  //playerImg2.resize(100*width/1280,100*width/1280);
+
   titleImg = loadImage("data/title.jpg");
   if (System.getProperty("os.name").startsWith("Windows")) {
     // For windows
@@ -150,8 +158,8 @@ void setup() {
   isGameSoundPlayed = true; //play the start game sound
   circleColor = color(255);
   circleHighlight = color(0,255,255);
-  circleX = width/6+105;
-  circleY = height*3/4-80;
+  circleX = width/6+105*width/1280;
+  circleY = height*3/4-80*height/720;
   ellipseMode(CENTER);
   location = new PVector(100,100);
   velocity = new PVector(1.5,2.1);
@@ -168,9 +176,9 @@ void draw() {
 
     background(titleImg);
     fill(255);
-    textSize(48);
+    textSize(width*48/1280);
     textAlign(CENTER);
-    text("Marker ver.", width/4, height/2+20);
+    text("Marker ver.", width/4, height/2+20*height/720);
     if (circleOver) {
       fill(circleHighlight);
     } else {
@@ -178,10 +186,10 @@ void draw() {
     }
     ellipse(circleX, circleY, circleSize, circleSize);
     fill(0);
-    text("Start", width/5+60, height*3/4-65);
-    textSize(30);
-    text("Best score: " + best_score , width/5+60, height*3/4+20);
-    text("Player name:" + best_name , width/5+60, height*3/4+60);
+    text("Start", width/5+60*width/1280, height*3/4-65*height/720);
+    textSize(width*30/1280);
+    text("Best score: " + best_score , width/5+60*width/1280, height*3/4+20*height/720);
+    text("Player name:" + best_name , width/5+60*width/1280, height*3/4+60*height/720);
     
     // Drawing the bouncing bird
     location.add(velocity); // Add velocity to the location.
@@ -227,7 +235,7 @@ void draw() {
       gy += corners[j].y;
     }
   }
-  println(gy/4);
+  //println(gy/4);
 
   // if not dead
   if (dead == 0) {
@@ -251,14 +259,15 @@ void draw() {
   // if dead
   if (dead == 1) {
     fill(255, 0, 0);
-    textSize(72);
+    textSize(width*72/1280);
     textAlign(CENTER);
     text("GAME OVER", width/2, height/2-60);
     fill(255);
-    textSize(48);
+    textSize(width*48/1280);
     text("Your score: " + score, width/2, height/2);
-    textSize(30);
-    text("press Space for another game!", width/2, height/2+180);
+
+    textSize(width*30/1280);
+    text("press ENTER/RETURN for another game!", width/2, height/2+180);
     if(score > best_score){
       best_score = score;
       new_record = true;
@@ -266,7 +275,8 @@ void draw() {
     }
     if(new_record){
       best_score = score;
-      textSize(48);
+      textSize(width*48/1280);
+
       fill(255, 255, 0);
       text("NEW RECORD!!!!  Type your name:" + best_name, width/2, height/2+80);
     }
@@ -281,7 +291,7 @@ void draw() {
   }
   fill(255);
   textAlign(CENTER);
-  textSize(48);
+  textSize(width*48/1280);
   text(score, width/2, 100);
 
   System.gc();
@@ -445,4 +455,10 @@ void init() {
   score = 0;
   title = 1;
   new_record = false;
+  
+  file.writeFile(best_name+','+best_score);
+  String data = file.readFile();
+  String[] scs = (data.split(","));
+  int sc = parseInt(scs[scs.length-1]);
+  println(sc);
 }
