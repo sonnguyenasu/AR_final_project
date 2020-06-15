@@ -1,7 +1,7 @@
 import gab.opencv.*;
 import processing.video.*;
 import processing.sound.*;
-
+import java.util.Arrays;
 //===============draw function counter========//
 int drawCounter = 0;
 
@@ -26,7 +26,7 @@ float pipeWidth;
 float pipeGap;
 float pipeInterval;
 ArrayList<Dokan> dokanArray;
-
+ManiFile file = new ManiFile("test.txt");
 final boolean MARKER_TRACKER_DEBUG = false;
 
 final boolean USE_SAMPLE_IMAGE = false;
@@ -121,7 +121,7 @@ void setupCamera() {
 void setup() {
   smooth();
   markerTracker = new MarkerTracker(kMarkerSize);
-
+  //println(System.getProperty("user.dir"));
   if (!USE_DIRECTSHOW) {
     if (!System.getProperty("os.name").startsWith("Windows")) {
       setupCamera();
@@ -129,13 +129,20 @@ void setup() {
     cap.start();
   }
 
+  String data = file.readFile();
+  String[] scs = (data.split(","));
+  best_score = parseInt(scs[scs.length-1]);
+  best_name = String.join(" ",Arrays.copyOf(scs, scs.length-1));
+  
  // Added in Lecture 5 (20/05/27), to manage keyevents
   keyState = new KeyState();
   circleSize = width*120/1280;
   textFont(createFont("Arial", 48));
-  playerImg = loadImage("data/peng.png");
-  playerImg2 = loadImage("data/peng2.png");
-  //playerImg.resize(120,120);
+  playerImg = loadImage("data/pig.png");
+  playerImg2 = loadImage("data/pig2.png");
+  //playerImg.resize(100*width/1280,100*width/1280);
+  //playerImg2.resize(100*width/1280,100*width/1280);
+
   titleImg = loadImage("data/title.jpg");
   if (System.getProperty("os.name").startsWith("Windows")) {
     // For windows
@@ -227,7 +234,7 @@ void draw() {
       gy += corners[j].y;
     }
   }
-  println(gy/4);
+  //println(gy/4);
 
   // if not dead
   if (dead == 0) {
@@ -445,4 +452,9 @@ void init() {
   score = 0;
   title = 1;
   new_record = false;
+  file.writeFile(best_name+','+best_score);
+  String data = file.readFile();
+  String[] scs = (data.split(","));
+  int sc = parseInt(scs[scs.length-1]);
+  println(sc);
 }
