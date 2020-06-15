@@ -591,4 +591,3 @@ void calcHomography(float[][] pResult, PVector[] pQuad) {
 		pResult[1][i] = pResult[1][i] + pResult[2][i] * mean.y;
 	}
 }
-

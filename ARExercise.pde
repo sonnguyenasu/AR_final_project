@@ -53,6 +53,9 @@ float dx = 400;
 float dy = 300;
 int dead = 0;
 int score = 0;
+int best_score = 0;
+boolean new_record = false;
+String best_name = "N/A";
 int title = 1;
 
 
@@ -67,7 +70,7 @@ void selectCamera() {
 
   if (cameras == null) {
     println("Failed to retrieve the list of available cameras, will try the default");
-    cap = new Capture(this, 640, 480);
+    cap = new Capture(this, 1280, 720);
   } else if (cameras.length == 0) {
     println("There are no cameras available for capture.");
     exit();
@@ -128,7 +131,7 @@ void setup() {
 
  // Added in Lecture 5 (20/05/27), to manage keyevents
   keyState = new KeyState();
-
+  circleSize = width*120/1280;
   textFont(createFont("Arial", 48));
   playerImg = loadImage("data/peng.png");
   playerImg2 = loadImage("data/peng2.png");
@@ -147,24 +150,14 @@ void setup() {
   isGameSoundPlayed = true; //play the start game sound
   circleColor = color(255);
   circleHighlight = color(0,255,255);
-  circleX = width/6+105;
-  circleY = height*3/4-80;
+  circleX = width/6+105*width/1280;
+  circleY = height*3/4-80*height/720;
   ellipseMode(CENTER);
   location = new PVector(100,100);
   velocity = new PVector(1.5,2.1);
   gravity = new PVector(0,0.2);
   //===================Initialize dokan====================//
-  pipeWidth = dcap.width/16;
-  pipeGap = 120;
-  pipeInterval = (dcap.width+pipeWidth)/5-pipeWidth;
-
-  dokanArray = new ArrayList<Dokan>();
-  for (int i = 0; i < 5; i++) {
-    dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
-    dokanArray.get(i).setX(dx + i*(pipeWidth + pipeInterval));
-    if (i == 0) dokanArray.get(i).setY(dy);
-    else dokanArray.get(i).setY(random(height/2, width/2));
-  } 
+  initializeDokan();
   //===================Play the start game sound===========//
   startGameFile.loop();
 }
@@ -175,9 +168,9 @@ void draw() {
 
     background(titleImg);
     fill(255);
-    textSize(48);
+    textSize(width*48/1280);
     textAlign(CENTER);
-    text("Marker ver.", width/4, height/2+20);
+    text("Marker ver.", width/4, height/2+20*height/720);
     if (circleOver) {
       fill(circleHighlight);
     } else {
@@ -185,7 +178,10 @@ void draw() {
     }
     ellipse(circleX, circleY, circleSize, circleSize);
     fill(0);
-    text("Start", width/5+60, height*3/4-65);
+    text("Start", width/5+60*width/1280, height*3/4-65*height/720);
+    textSize(width*30/1280);
+    text("Best score: " + best_score , width/5+60*width/1280, height*3/4+20*height/720);
+    text("Player name:" + best_name , width/5+60*width/1280, height*3/4+60*height/720);
     
     // Drawing the bouncing bird
     location.add(velocity); // Add velocity to the location.
@@ -255,14 +251,25 @@ void draw() {
   // if dead
   if (dead == 1) {
     fill(255, 0, 0);
-    textSize(72);
+    textSize(width*72/1280);
     textAlign(CENTER);
-    text("GAME OVER", width/2, height/2-50);
+    text("GAME OVER", width/2, height/2-60);
     fill(255);
-    textSize(48);
+    textSize(width*48/1280);
     text("Your score: " + score, width/2, height/2);
-    textSize(30);
-    text("press Space for another game", width/2, height/2+40);
+    textSize(width*30/1280);
+    text("press ENTER/RETURN for another game!", width/2, height/2+180);
+    if(score > best_score){
+      best_score = score;
+      new_record = true;
+      best_name = "";
+    }
+    if(new_record){
+      best_score = score;
+      textSize(width*48/1280);
+      fill(255, 255, 0);
+      text("NEW RECORD!!!!  Type your name:" + best_name, width/2, height/2+80);
+    }
     if(isGameSoundPlayed){  
       startGameFile.stop();
       isGameSoundPlayed = false;
@@ -274,7 +281,7 @@ void draw() {
   }
   fill(255);
   textAlign(CENTER);
-  textSize(48);
+  textSize(width*48/1280);
   text(score, width/2, 100);
 
   System.gc();
@@ -295,6 +302,28 @@ void captureEvent(Capture c) {
 //     line(i,py,i,py+pipeHeight);
 //   }
 // }
+
+void initializeDokan() {
+  if (System.getProperty("os.name").startsWith("Windows")) {
+    pipeWidth = dcap.width/16;
+  } else {
+    pipeWidth = cap.width/16;
+  }
+  pipeGap = 120;
+  if (System.getProperty("os.name").startsWith("Windows")) {
+    pipeInterval = (dcap.width+pipeWidth)/5-pipeWidth;
+  } else {
+    pipeInterval = (cap.width+pipeWidth)/5-pipeWidth;
+  }
+
+  dokanArray = new ArrayList<Dokan>();
+  for (int i = 0; i < 5; i++) {
+    dokanArray.add(i, new Dokan(pipeWidth, pipeGap, pipeInterval));
+    dokanArray.get(i).setX(dx + i*(pipeWidth + pipeInterval));
+    if (i == 0) dokanArray.get(i).setY(dy);
+    else dokanArray.get(i).setY(random(height/2, width/2));
+  } 
+}
 
 void drawDokan(ArrayList<Dokan> queue, int score) {
   for (Dokan dokan : queue) {
@@ -333,17 +362,15 @@ void player(int gy) {
     y = gy;
   }
 
-  // collision with lower pipe
   for (Dokan dokan : dokanArray) {
+    // collision with lower pipe
     int hit = isHit(x, y, 50, 50, dokan.getX(), dokan.getY(), pipeWidth/2 , height - dokan.getY());
     if (hit == 1) {
       fill(255, 0, 0);
       dead = 1;
       break;
     }
-  }
-  // collision with upper pipe
-  for (Dokan dokan : dokanArray) {
+    // collision with upper pipe
     int hit02 = isHit(x, y, 50, 50, dokan.getX(), 0, pipeWidth/2, dokan.getY() - 150);
     if (hit02 == 1) {
       fill(255, 0, 0); 
@@ -417,4 +444,5 @@ void init() {
   dead = 0;
   score = 0;
   title = 1;
+  new_record = false;
 }
