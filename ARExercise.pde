@@ -265,6 +265,7 @@ void draw() {
     fill(255);
     textSize(width*48/1280);
     text("Your score: " + score, width/2, height/2);
+
     textSize(width*30/1280);
     text("press ENTER/RETURN for another game!", width/2, height/2+180);
     if(score > best_score){
@@ -275,6 +276,7 @@ void draw() {
     if(new_record){
       best_score = score;
       textSize(width*48/1280);
+
       fill(255, 255, 0);
       text("NEW RECORD!!!!  Type your name:" + best_name, width/2, height/2+80);
     }
@@ -453,6 +455,7 @@ void init() {
   score = 0;
   title = 1;
   new_record = false;
+  
   file.writeFile(best_name+','+best_score);
   String data = file.readFile();
   String[] scs = (data.split(","));
